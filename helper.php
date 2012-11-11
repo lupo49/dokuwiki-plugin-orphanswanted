@@ -96,7 +96,8 @@ class helper_plugin_orphanswanted extends DokuWiki_Plugin {
         foreach( array(
                   '/<nowiki>.*?<\/nowiki>/',
                   '/%%.*?%%/',
-                  '/<code .*?>.*?<\/code>/'
+                  '@<code[^>]*?>.*?<\/code>@siu',
+                  '@<file[^>]*?>.*?<\/file>@siu'
         )
         as $ignored )
         {
