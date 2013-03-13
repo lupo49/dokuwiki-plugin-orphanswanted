@@ -31,6 +31,12 @@ class helper_plugin_orphanswanted extends DokuWiki_Plugin {
         //	orph_Check_InternalLinks(&$data,$base,$file,$type,$lvl,$opts);
         $this->orph_Check_InternalLinks($data,$base,$file,$type,$lvl,$opts);
 
+        $eventData = array(
+            'data' => &$data,
+            'file' => $file
+        );
+        trigger_event('PLUGIN_ORPHANS_WANTED_PROCESS_PAGE', $eventData);
+
         // get id of this file
         $id = pathID($file);
 
