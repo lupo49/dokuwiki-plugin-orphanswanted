@@ -99,12 +99,14 @@ class helper_plugin_orphanswanted extends DokuWiki_Plugin {
         // echo "  <!-- checking file: $file -->\n";
         $body = @file_get_contents($conf['datadir'] . $file);
 
-        // ignores entries in <nowiki>, %%, <code> and emails with @
+        // ignores entries in <nowiki>, %%, <code>, emails with @, comment-syntax multi-line and one-line comments 
         foreach( array(
                   '/<nowiki>.*?<\/nowiki>/',
                   '/%%.*?%%/',
                   '@<code[^>]*?>.*?<\/code>@siu',
-                  '@<file[^>]*?>.*?<\/file>@siu'
+                  '@<file[^>]*?>.*?<\/file>@siu',
+				  '#\/\*[\s\S][^\*\/]*\*\/#', 
+                  '#\s\/\/[ \t](?:[^\/\n]*|[^\/\n]*\/[^\/\n]*|[^\/]*)(?!(?:\/\/.+)|\/)(?=\n)#'
         )
         as $ignored )
         {
@@ -124,6 +126,12 @@ class helper_plugin_orphanswanted extends DokuWiki_Plugin {
             and ! preg_match('<'.PREG_PATTERN_VALID_EMAIL.'>',$link) // E-Mail (pattern above is defined in inc/mail.php)
             and ! preg_match('!^#.+!',$link) // inside page link (html anchor)
             ) {
+				// remove parameters (by RockyRoad29)
+                $link = preg_replace('/\?.*/', '', $link) . "\n";
+                
+                // remove inline predicates used with dokuwiki-plugin-stratainline ref entries
+                $link = preg_replace('/.*~/', '', $link) . "\n";
+				
                 $pageExists = false;
                 resolve_pageid($currentNS, $link, $pageExists );
                 if ($conf['allowdebug']) echo sprintf("---- link='%s' %s ", $link, $pageExists?'EXISTS':'MISS');
