@@ -100,15 +100,21 @@ class helper_plugin_orphanswanted extends DokuWiki_Plugin {
         $body = @file_get_contents($conf['datadir'] . $file);
 
         // ignores entries in <nowiki>, %%, <code>, emails with @, comment-syntax multi-line and one-line comments 
-        foreach( array(
+		$conditionsToIgnore = array(
                   '/<nowiki>.*?<\/nowiki>/',
                   '/%%.*?%%/',
                   '@<code[^>]*?>.*?<\/code>@siu',
-                  '@<file[^>]*?>.*?<\/file>@siu',
-				  '#\/\*[\s\S][^\*\/]*\*\/#', 
-                  '#\s\/\/[ \t](?:[^\/\n]*|[^\/\n]*\/[^\/\n]*|[^\/]*)(?!(?:\/\/.+)|\/)(?=\n)#'
-        )
-        as $ignored )
+                  '@<file[^>]*?>.*?<\/file>@siu'
+		);
+		
+		$ignoreComments = $this->getConf('ignorecomments');
+		
+		if ($ignoreComments) {
+			$conditionsToIgnore[] = '#\/\*[\s\S][^\*\/]*\*\/#';
+			$conditionsToIgnore[] = '#\s\/\/[ \t](?:[^\/\n]*|[^\/\n]*\/[^\/\n]*|[^\/]*)(?!(?:\/\/.+)|\/)(?=\n)#';
+		}
+		
+        foreach( $conditionsToIgnore as $ignored )
         {
             $body = preg_replace($ignored, '',  $body);
         }
